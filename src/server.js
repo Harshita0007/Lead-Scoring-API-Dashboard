@@ -12,9 +12,12 @@ const { scoreLeads, getResults, exportResultsCSV } = require('./controllers/scor
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure multer for file uploads
+// Configure multer for file uploads - USE MEMORY STORAGE FOR VERCEL
 const upload = multer({ 
-  dest: 'uploads/',
+  storage: multer.memoryStorage(), // Store files in memory instead of disk
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
   fileFilter: (req, file, cb) => {
     if (path.extname(file.originalname).toLowerCase() !== '.csv') {
       return cb(new Error('Only CSV files are allowed'));
@@ -65,13 +68,15 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(` Lead Scoring API running on port ${PORT}`);
-  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
-  if (!process.env.GROQ_API_KEY) {
-    console.warn(' WARNING: GROQ_API_KEY not set in environment variables');
-  }
-});
+// Start server (only for local development)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Lead Scoring API running on port ${PORT}`);
+    console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+    if (!process.env.GROQ_API_KEY) {
+      console.warn('⚠️  WARNING: GROQ_API_KEY not set in environment variables');
+    }
+  });
+}
 
 module.exports = app;
