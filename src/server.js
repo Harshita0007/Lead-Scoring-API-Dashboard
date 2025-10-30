@@ -26,8 +26,6 @@ const upload = multer({
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));  // <- Add this line
-
 
 // Health check endpoint
 app.get('/', (req, res) => {

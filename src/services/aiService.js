@@ -11,7 +11,6 @@ const groq = new Groq({
  * @returns {Promise<Object>} { intent, reasoning, points }
  */
 async function classifyIntent(lead, offer) {
-  // Construct detailed prompt for AI
   const prompt = `You are a B2B sales qualification expert. Analyze this prospect's fit for our product.
 
 PRODUCT INFORMATION:
@@ -43,7 +42,7 @@ Respond in JSON format:
 
   try {
     const response = await groq.chat.completions.create({
-      model: 'llama-3.1-70b-versatile', // Fast and accurate model
+      model: 'llama-3.3-70b-versatile', // Fast and accurate model
       messages: [
         { 
           role: 'system', 

@@ -14,8 +14,6 @@
     "sales",
     "backend"
   ],
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
