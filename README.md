@@ -563,6 +563,9 @@ NODE_ENV=development                # Environment mode
 
 ## 🔗 Live Demo
 
+🎥 **Project Demo Video**  
+👉 [Watch the Demo on Google Drive](https://drive.google.com/file/d/17kGvbYP8xTVSvG_f3kVsf6Oief-MmM00/view?usp=sharing)
+
 **Deployed API Base URL**: `https://lead-scoring-api-dashboard-4r39.vercel.app`
 
 Test the live API:
