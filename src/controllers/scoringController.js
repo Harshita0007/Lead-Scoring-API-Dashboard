@@ -33,7 +33,6 @@ async function scoreLeads(req, res) {
     console.log(`🔄 Scoring ${leads.length} leads...`);
     const scoredLeads = [];
     
-    // Process each lead
     for (let i = 0; i < leads.length; i++) {
       const lead = leads[i];
       console.log(`Processing lead ${i + 1}/${leads.length}: ${lead.name}`);
@@ -77,7 +76,6 @@ async function scoreLeads(req, res) {
         
       } catch (error) {
         console.error(`Error scoring lead ${lead.name}:`, error.message);
-        // Continue with next lead instead of failing entire batch
         scoredLeads.push({
           name: lead.name,
           role: lead.role,
@@ -104,7 +102,7 @@ async function scoreLeads(req, res) {
       )
     };
     
-    console.log(`✅ Scoring complete. Summary:`, summary);
+    console.log(`Scoring complete. Summary:`, summary);
     
     res.json({
       message: 'Scoring completed successfully',
