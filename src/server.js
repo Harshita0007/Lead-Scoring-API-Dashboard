@@ -67,10 +67,10 @@ app.use((req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Lead Scoring API running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(` Lead Scoring API running on port ${PORT}`);
+  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
   if (!process.env.GROQ_API_KEY) {
-    console.warn('⚠️  WARNING: GROQ_API_KEY not set in environment variables');
+    console.warn(' WARNING: GROQ_API_KEY not set in environment variables');
   }
 });
 
