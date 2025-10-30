@@ -1,5 +1,5 @@
-const fs = require('fs');
 const csv = require('csv-parser');
+const { Readable } = require('stream'); // Add this import at the top
 const storage = require('../utils/storage');
 
 /**
@@ -19,7 +19,10 @@ async function uploadLeads(req, res) {
   
   try {
     await new Promise((resolve, reject) => {
-      fs.createReadStream(req.file.path)
+      // ✅ Convert buffer to stream instead of reading from file path
+      const bufferStream = Readable.from(req.file.buffer.toString('utf8'));
+      
+      bufferStream
         .pipe(csv())
         .on('headers', (headers) => {
           // Validate CSV headers
@@ -46,8 +49,7 @@ async function uploadLeads(req, res) {
         .on('error', reject);
     });
     
-    // Clean up uploaded file
-    fs.unlinkSync(req.file.path);
+    // ✅ No need to clean up files anymore - they're in memory!
     
     if (leads.length === 0) {
       return res.status(400).json({ 
@@ -65,10 +67,7 @@ async function uploadLeads(req, res) {
     });
     
   } catch (error) {
-    // Clean up file on error
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
+    // ✅ No file cleanup needed anymore
     
     res.status(400).json({ 
       error: 'Failed to process CSV file',
