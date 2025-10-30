@@ -354,68 +354,7 @@ Import this JSON into Postman:
 }
 ```
 
-## 🚢 Deployment
 
-### Option 1: Vercel (Serverless - Recommended)
-
-**Important**: Vercel uses serverless functions with read-only file systems.
-
-1. **Push code to GitHub**
-
-2. **Go to [Vercel Dashboard](https://vercel.com/dashboard)**
-
-3. **Click "Import Project"** and select your repository
-
-4. **Add Environment Variables**:
-   - `GROQ_API_KEY`: Your GROQ API key
-   - `NODE_ENV`: `production`
-
-5. **Deploy!**
-
-**Note**: File uploads use memory storage (not disk) for Vercel compatibility.
-
-#### vercel.json Configuration
-
-Your project should include this `vercel.json` file:
-
-```json
-{
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/src/server.js"
-    }
-  ]
-}
-```
-
-### Option 2: Render (Traditional Server)
-
-1. Push code to GitHub
-2. Go to [Render Dashboard](https://dashboard.render.com/)
-3. Click "New +" → "Web Service"
-4. Connect your GitHub repo
-5. Configure:
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-   - **Environment Variables**:
-     - `GROQ_API_KEY`: Your GROQ API key
-     - `NODE_ENV`: `production`
-6. Deploy!
-
-### Option 3: Docker
-
-```bash
-# Build image
-docker build -t lead-scoring-api .
-
-# Run container
-docker run -p 3000:3000 \
-  -e GROQ_API_KEY=your_key_here \
-  -e NODE_ENV=production \
-  lead-scoring-api
-```
 
 ## 🧪 Testing
 
@@ -562,16 +501,15 @@ NODE_ENV=development                # Environment mode
 - ✅ Serverless compatibility
 
 ## 🔗 Live Demo
-
 🎥 **Project Demo Video**  
 👉 [Watch the Demo on Google Drive](https://drive.google.com/file/d/17kGvbYP8xTVSvG_f3kVsf6Oief-MmM00/view?usp=sharing)
 
-**Deployed API Base URL**: `https://lead-scoring-api-dashboard-4r39.vercel.app`
+**Deployed API Base URL:**  
+🔗 [https://lead-scoring-api-dashboard-4r39.vercel.app](https://lead-scoring-api-dashboard-4r39.vercel.app)
 
 Test the live API:
 ```bash
 curl https://lead-scoring-api-dashboard-4r39.vercel.app/
-```
 
 **Expected Response:**
 ```json
