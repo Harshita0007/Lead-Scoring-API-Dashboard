@@ -1,8 +1,8 @@
 # Lead Scoring Backend API
 
-AI-powered lead qualification system that combines rule-based scoring with GPT-3.5-turbo intelligence to predict buying intent for B2B sales leads.
+AI-powered lead qualification system that combines rule-based scoring with GROQ AI intelligence to predict buying intent for B2B sales leads.
 
-##  Features
+## ✨ Features
 
 - **Product/Offer Management**: Store your product details and ideal customer profile
 - **CSV Lead Upload**: Bulk import prospect data
@@ -12,6 +12,14 @@ AI-powered lead qualification system that combines rule-based scoring with GPT-3
 - **Intent Classification**: High / Medium / Low buying intent
 - **Export Results**: JSON API and CSV download
 - **Production Ready**: Error handling, validation, logging
+- **Serverless Compatible**: Optimized for Vercel and traditional hosting
+
+## ⚠️ Important Notes
+
+- **File Storage**: Uses in-memory storage (compatible with serverless platforms like Vercel)
+- **AI Model**: Uses GROQ AI (llama-3.1-70b-versatile) for intelligent lead scoring
+- **Deployment**: Optimized for both traditional servers (Render) and serverless (Vercel)
+- **CSV Uploads**: Files are processed in memory, not saved to disk
 
 ## 📋 Table of Contents
 
@@ -27,16 +35,63 @@ AI-powered lead qualification system that combines rule-based scoring with GPT-3
 ### Prerequisites
 
 - Node.js 18+ 
-- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+- GROQ API key ([Get one here](https://console.groq.com/keys))
 
+### Local Development
 
-## API Endpoints
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/lead-scoring-api.git
+cd lead-scoring-api
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Create `.env` file**
+```bash
+cp .env.example .env
+```
+
+4. **Add your GROQ API key to `.env`**
+```env
+GROQ_API_KEY=gsk_your_api_key_here
+PORT=3000
+NODE_ENV=development
+```
+
+5. **Start the server**
+```bash
+npm start
+```
+
+Server will be running at `http://localhost:3000`
+
+## 📡 API Endpoints
 
 ### 1. Health Check
 ```
 GET /
 ```
 Returns API status and available endpoints.
+
+**Example Response:**
+```json
+{
+  "status": "healthy",
+  "message": "Lead Scoring API v1.0",
+  "timestamp": "2025-10-30T23:48:15.371Z",
+  "endpoints": {
+    "offer": "POST /offer - Store product/offer details",
+    "upload": "POST /leads/upload - Upload CSV file with leads",
+    "score": "POST /score - Run scoring pipeline",
+    "results": "GET /results - Get scored leads as JSON",
+    "export": "GET /results/csv - Export results as CSV"
+  }
+}
+```
 
 ### 2. Store Product/Offer
 ```
@@ -134,7 +189,7 @@ Downloads `scored_leads.csv` file.
 
 ### AI Layer (Max 50 points)
 
-Sends prospect + offer context to OpenAI GPT-3.5-turbo with prompt:
+Sends prospect + offer context to GROQ AI (llama-3.1-70b-versatile) with prompt:
 
 ```
 You are a B2B sales qualification expert. Analyze this prospect's fit.
@@ -166,7 +221,17 @@ Based on total score (0-100):
 
 #### 1. Store Offer
 ```bash
+# Local development
 curl -X POST http://localhost:3000/offer \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "AI Outreach Automation",
+    "value_props": ["24/7 outreach", "6x more meetings", "AI-powered personalization"],
+    "ideal_use_cases": ["B2B SaaS mid-market", "Sales teams 10-50 reps"]
+  }'
+
+# Production (Vercel)
+curl -X POST https://lead-scoring-api-dashboard-4r39.vercel.app/offer \
   -H "Content-Type: application/json" \
   -d '{
     "name": "AI Outreach Automation",
@@ -177,23 +242,40 @@ curl -X POST http://localhost:3000/offer \
 
 #### 2. Upload Leads
 ```bash
+# Local
 curl -X POST http://localhost:3000/leads/upload \
+  -F "file=@leads.csv"
+
+# Production
+curl -X POST https://lead-scoring-api-dashboard-4r39.vercel.app/leads/upload \
   -F "file=@leads.csv"
 ```
 
 #### 3. Run Scoring
 ```bash
+# Local
 curl -X POST http://localhost:3000/score
+
+# Production
+curl -X POST https://lead-scoring-api-dashboard-4r39.vercel.app/score
 ```
 
 #### 4. Get Results
 ```bash
+# Local
 curl http://localhost:3000/results
+
+# Production
+curl https://lead-scoring-api-dashboard-4r39.vercel.app/results
 ```
 
 #### 5. Export CSV
 ```bash
+# Local
 curl http://localhost:3000/results/csv -o scored_leads.csv
+
+# Production
+curl https://lead-scoring-api-dashboard-4r39.vercel.app/results/csv -o scored_leads.csv
 ```
 
 ### Postman Collection
@@ -208,19 +290,33 @@ Import this JSON into Postman:
   },
   "item": [
     {
-      "name": "1. Store Offer",
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/"
+      }
+    },
+    {
+      "name": "2. Store Offer",
       "request": {
         "method": "POST",
         "header": [{"key": "Content-Type", "value": "application/json"}],
         "url": "{{base_url}}/offer",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"AI Outreach Tool\",\n  \"value_props\": [\"24/7 automation\"],\n  \"ideal_use_cases\": [\"B2B SaaS\"]\n}"
+          "raw": "{\n  \"name\": \"AI Outreach Tool\",\n  \"value_props\": [\"24/7 automation\", \"6x more meetings\"],\n  \"ideal_use_cases\": [\"B2B SaaS\", \"Sales teams\"]\n}"
         }
       }
     },
     {
-      "name": "2. Upload Leads",
+      "name": "3. Get Offer",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/offer"
+      }
+    },
+    {
+      "name": "4. Upload Leads",
       "request": {
         "method": "POST",
         "url": "{{base_url}}/leads/upload",
@@ -231,29 +327,70 @@ Import this JSON into Postman:
       }
     },
     {
-      "name": "3. Run Scoring",
+      "name": "5. Run Scoring",
       "request": {
         "method": "POST",
         "url": "{{base_url}}/score"
       }
     },
     {
-      "name": "4. Get Results",
+      "name": "6. Get Results",
       "request": {
         "method": "GET",
         "url": "{{base_url}}/results"
       }
+    },
+    {
+      "name": "7. Export CSV",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/results/csv"
+      }
     }
   ],
   "variable": [
-    {"key": "base_url", "value": "http://localhost:3000"}
+    {"key": "base_url", "value": "https://lead-scoring-api-dashboard-4r39.vercel.app"}
   ]
 }
 ```
 
 ## 🚢 Deployment
 
-### Option 1: Render (Recommended)
+### Option 1: Vercel (Serverless - Recommended)
+
+**Important**: Vercel uses serverless functions with read-only file systems.
+
+1. **Push code to GitHub**
+
+2. **Go to [Vercel Dashboard](https://vercel.com/dashboard)**
+
+3. **Click "Import Project"** and select your repository
+
+4. **Add Environment Variables**:
+   - `GROQ_API_KEY`: Your GROQ API key
+   - `NODE_ENV`: `production`
+
+5. **Deploy!**
+
+**Note**: File uploads use memory storage (not disk) for Vercel compatibility.
+
+#### vercel.json Configuration
+
+Your project should include this `vercel.json` file:
+
+```json
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/src/server.js"
+    }
+  ]
+}
+```
+
+### Option 2: Render (Traditional Server)
 
 1. Push code to GitHub
 2. Go to [Render Dashboard](https://dashboard.render.com/)
@@ -263,10 +400,21 @@ Import this JSON into Postman:
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
    - **Environment Variables**:
-     - `OPENAI_API_KEY`: Your OpenAI key
+     - `GROQ_API_KEY`: Your GROQ API key
      - `NODE_ENV`: `production`
 6. Deploy!
 
+### Option 3: Docker
+
+```bash
+# Build image
+docker build -t lead-scoring-api .
+
+# Run container
+docker run -p 3000:3000 \
+  -e GROQ_API_KEY=your_key_here \
+  -e NODE_ENV=production \
+  lead-scoring-api
 ```
 
 ## 🧪 Testing
@@ -298,6 +446,13 @@ name,role,company,industry,location,linkedin_bio
 Ava Patel,Head of Growth,FlowMetrics,SaaS,San Francisco,Growth leader with 10 years in B2B SaaS
 John Smith,CEO,TechVision,Software,New York,Founded 3 SaaS companies
 Sarah Lee,Manager,RetailCo,Retail,Austin,Retail operations manager
+Michael Chen,VP of Sales,CloudScale,Technology,Seattle,Sales executive driving revenue growth
+Emily Johnson,Senior Developer,DevTools Inc,Tech,Boston,Full-stack developer passionate about developer tools
+David Rodriguez,Founder,StartupLab,B2B SaaS,Miami,Building next-gen sales tools for mid-market
+Lisa Wang,Director of Operations,FinanceHub,Fintech,Chicago,Operations leader optimizing processes
+Robert Brown,Manager,HealthCare Plus,Healthcare,Denver,Healthcare operations manager
+Jennifer Taylor,Lead,EcomSolutions,Ecommerce,Portland,Lead Product Manager for ecommerce platform
+Tom Anderson,CTO,DataCorp,Data,Toronto,Technical leader building data infrastructure
 ```
 
 ## 📁 Project Structure
@@ -311,15 +466,15 @@ lead-scoring-backend/
 │   │   └── scoringController.js    # Scoring pipeline
 │   ├── services/
 │   │   ├── ruleEngine.js           # Rule-based scoring logic
-│   │   └── aiService.js            # OpenAI integration
+│   │   └── aiService.js            # GROQ AI integration
 │   ├── utils/
 │   │   └── storage.js              # In-memory data store
 │   └── server.js                   # Express app entry point
 ├── tests/
 │   └── ruleEngine.test.js          # Unit tests
-├── uploads/                         # Temporary CSV storage
 ├── .env.example                     # Environment template
 ├── .gitignore
+├── vercel.json                      # Vercel deployment config
 ├── Dockerfile                       # Docker configuration
 ├── package.json
 └── README.md
@@ -328,29 +483,43 @@ lead-scoring-backend/
 ## 🔑 Environment Variables
 
 ```env
-PORT=3000                           # Server port (optional)
-OPENAI_API_KEY=sk-...               # Required: OpenAI API key
+PORT=3000                           # Server port (optional, ignored on Vercel)
+GROQ_API_KEY=gsk_...                # Required: GROQ API key
 NODE_ENV=development                # Environment mode
 ```
 
 ## 🐛 Troubleshooting
 
-### "OpenAI API key not configured"
-- Ensure `.env` file exists with valid `OPENAI_API_KEY`
-- Check key starts with `sk-`
+### "GROQ API key not configured"
+- Ensure `.env` file exists with valid `GROQ_API_KEY`
+- Check key starts with `gsk_`
+- For Vercel: Set in Project Settings → Environment Variables → Redeploy
 
 ### "Missing required columns" error
 - Verify CSV has exact headers: `name,role,company,industry,location,linkedin_bio`
 - Check for typos or extra spaces in headers
+- Ensure no empty header columns
 
 ### AI scoring returns "Medium" for all leads
-- OpenAI API might be rate-limited
+- GROQ API might be rate-limited
 - Check API key has sufficient credits
 - Review console logs for API errors
+
+### "EROFS: read-only file system" error on Vercel
+- This happens if multer tries to write to disk
+- Ensure you're using `multer.memoryStorage()` instead of `dest: 'uploads/'`
+- Files should be stored in `req.file.buffer`, not saved to disk
+- Check that `leadsController.js` uses `Readable.from(req.file.buffer.toString('utf8'))`
 
 ### Server not starting
 - Check if port 3000 is already in use
 - Try: `PORT=3001 npm start`
+- Verify all dependencies installed: `npm install`
+
+### 401 Unauthorized on Vercel
+- Go to Vercel Project Settings → Deployment Protection
+- Disable "Vercel Authentication" if enabled
+- Redeploy after changing settings
 
 ## 📊 Example Output
 
@@ -381,26 +550,41 @@ NODE_ENV=development                # Environment mode
 
 - ✅ Clean API design with proper REST conventions
 - ✅ Rule-based scoring (50 points: role + industry + data quality)
-- ✅ AI integration with OpenAI GPT-3.5-turbo
+- ✅ AI integration with GROQ AI (llama-3.1-70b-versatile)
 - ✅ Effective prompt engineering for intent classification
 - ✅ Comprehensive error handling and validation
 - ✅ Inline code documentation and comments
 - ✅ CSV export bonus feature
 - ✅ Unit tests for rule engine
 - ✅ Docker support
-- ✅ Deployment-ready configuration
+- ✅ Deployment-ready configuration (Vercel + Render)
 - ✅ Clear README with examples
+- ✅ Serverless compatibility
 
 ## 🔗 Live Demo
 
-**Deployed API Base URL**: `https://your-app.render.com`
+**Deployed API Base URL**: `https://lead-scoring-api-dashboard-4r39.vercel.app`
 
 Test the live API:
 ```bash
-curl https://your-app.render.com/
+curl https://lead-scoring-api-dashboard-4r39.vercel.app/
 ```
 
-## 📹 Video Demo
+**Expected Response:**
+```json
+{
+  "status": "healthy",
+  "message": "Lead Scoring API v1.0",
+  "timestamp": "2025-10-30T23:48:15.371Z",
+  "endpoints": {
+    "offer": "POST /offer - Store product/offer details",
+    "upload": "POST /leads/upload - Upload CSV file with leads",
+    "score": "POST /score - Run scoring pipeline",
+    "results": "GET /results - Get scored leads as JSON",
+    "export": "GET /results/csv - Export results as CSV"
+  }
+}
 
-[Loom Demo Link] - Walkthrough of API functionality and code architecture
+
+
 
